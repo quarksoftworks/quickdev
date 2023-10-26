@@ -1,5 +1,4 @@
-<h1 align="center">quickdev</h1>
-<span align="center">👩‍💻 Mini self-hostable development environment hosted on the web </span>
+<img align="center" src="/branding/quickdev.png" width="512">
 <hr>
 
 ## Features
