@@ -2,7 +2,9 @@ import esbuild from "esbuild";
 import { build as viteBuild } from "vite";
 import { svelte } from "@sveltejs/vite-plugin-svelte";
 import ansi from "ansi-colors";
-import { ChildProcess, spawn } from "child_process";
+import chokidar from "chokidar";
+import fs from "fs";
+import { ChildProcess, execFile, spawn } from "child_process";
 
 
 async function build() {
@@ -23,12 +25,12 @@ async function build() {
 
     // server
     let config: esbuild.BuildOptions = {
-        entryPoints: ["src/server/**/*.ts"],
-        bundle: false,
+        entryPoints: ["src/server/main.ts"],
+        bundle: true,
         minify: true,
-        outdir: "./dist/server",
+        external: ["express", "dotenv"],
+        outfile: "./dist/server/main.js",
         platform: "node",
-        format: "esm",
         logLevel: "silent",
     }
 
@@ -38,15 +40,35 @@ async function build() {
 
 }
 
+function start () {
+    let childProcess = spawn('node', ['./dist/server/main.js']);
+
+    childProcess.stdout.on('data', (data) => {
+        console.log(`${data}`);
+    });
+
+    childProcess.stderr.on('data', (data) => {
+        console.error(`${data}`);
+    });
+
+
+    return childProcess;
+}
+
 if (process.argv.includes("--watch")) {
-    const fs = require('fs');
+    await build();
+    let childProcess = start();
 
-    let process: ChildProcess;
+    // Initialize watcher.
+    const watcher = chokidar.watch('src', { persistent: true });
 
-    fs.watch("src", async (eventType, filename) => {
-        build();
-        if ( process ) process.kill();
-        process = await spawn("node", ["./dist/server/main.js"]);
+    // Add event listeners.
+    watcher.on('change', async (path) => {
+        console.log(`File ${path} has been changed`);
+
+        await build();
+        process.kill(childProcess.pid as number);
+        childProcess = start()
     });
 } else {
     await build();
