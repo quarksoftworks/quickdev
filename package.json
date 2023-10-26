@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "build": "tsx ./scripts/build.mts",
-    "dev": "tsx ./scripts/build.mts && node --enable-source-maps ./dist/server/main.js"
+    "start": "node ./dist/server/main.js",
+    "watch": "tsx ./scripts/build.mts --watch"
   },
   "keywords": [],
   "author": "",
