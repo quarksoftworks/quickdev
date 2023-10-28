@@ -1,0 +1,16 @@
+button {
+    border: none;
+    padding: 10px;
+    font-family: "Inter";
+    font-weight: bolder;
+    color: rgb(255, 255, 255);
+    background: none;
+    border: 1px solid white;
+    transition: 0.3s;
+
+    &:hover {
+        background-color: rgb(255, 255, 255);
+        color: black;
+        cursor: pointer;
+    }
+}

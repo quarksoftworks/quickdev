@@ -1,10 +1,9 @@
 import esbuild from "esbuild";
 import { build as viteBuild } from "vite";
-import { svelte } from "@sveltejs/vite-plugin-svelte";
+import { svelte, vitePreprocess } from "@sveltejs/vite-plugin-svelte";
 import ansi from "ansi-colors";
 import chokidar from "chokidar";
-import fs from "fs";
-import { ChildProcess, execFile, spawn } from "child_process";
+import { spawn } from "child_process";
 
 
 async function build() {
@@ -12,15 +11,19 @@ async function build() {
     await viteBuild({
         root: "./src/client",
         mode: "dev",
-        plugins: [svelte({})],
+        plugins: [svelte({
+            preprocess: vitePreprocess()
+        })],
         build: {
             rollupOptions: {
                 output: {
                     dir: "./dist/client"
                 }
-            }
+            },
         }
-    })
+    }).catch(err => {
+        console.log(`${ansi.bold.bgRedBright("QUICKDEV UNABLE TO BUILD")}`);
+    });
 
 
     // server
@@ -40,7 +43,7 @@ async function build() {
 
 }
 
-function start () {
+function start() {
     let childProcess = spawn('node', ['./dist/server/main.js']);
 
     childProcess.stdout.on('data', (data) => {
@@ -68,7 +71,7 @@ if (process.argv.includes("--watch")) {
 
         await build();
         process.kill(childProcess.pid as number);
-        childProcess = start()
+        childProcess = start();
     });
 } else {
     await build();
